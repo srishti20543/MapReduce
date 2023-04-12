@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+service CommWithMaster{
+    rpc MakeChoice(RegisterRequest) returns (RegisterResponse) {}
+}
+
+message RegisterRequest{
+    enum TypeOfRequest{
+        WordCount = 0;
+        InvertedIndex = 1;
+        NaturalJoin = 2;
+    }
+
+    TypeOfRequest typeOfRequest = 1;
+}
+
+message RegisterResponse{
+    string status = 1;
+}
