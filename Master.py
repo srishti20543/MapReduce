@@ -7,6 +7,11 @@ import CommWithMaster_pb2_grpc
 import CommWithMaster_pb2
 import logging
 import grpc
+import Mapper
+import Reducer
+
+from multiprocessing import Process
+
 
 MAPPERS = 0
 REDUCERS = 0
@@ -21,9 +26,26 @@ class CommWithMasterServicer(CommWithMaster_pb2_grpc.CommWithMasterServicer):
         
         if request.typeOfRequest == 1 or request.typeOfRequest == 2 or request.typeOfRequest == 3:
             RequestType = request.typeOfRequest
+            forkMappers()
+            # forkReducers()
             return CommWithMaster_pb2.RegisterResponse(status="SUCCESS")
         else:
             return CommWithMaster_pb2.RegisterResponse(status="FAIL")
+
+
+def forkMappers():
+    Mappers = []
+    for i in range(MAPPERS):
+            dir = InputDir + '/Input' + str(i+1) + '.txt'
+            Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS)))
+            Mappers[i].start()
+
+def forkReducers():
+    Reducers = []
+    for i in range(REDUCERS):
+            dir = InputDir + '/Output' + str(i+1) + '.txt'
+            Reducers.append(Process(target=Reducer.startReducer, args=(dir, RequestType, (i+1))))
+            Reducers[i].start()
 
 def serve():
     print(MAPPERS, REDUCERS, InputDir, OutputDir)
@@ -32,7 +54,6 @@ def serve():
     server.add_insecure_port('[::]:8000')
     server.start()
     server.wait_for_termination()
-
 
 if __name__ == '__main__':
     arg = sys.argv[1:]
