@@ -1,4 +1,0 @@
-('apple', 1)
-('Apple', 1)
-('red', 1)
-('color', 1)

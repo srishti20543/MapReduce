@@ -11,6 +11,7 @@ import grpc
 import Mapper
 import Reducer
 import os
+from time import sleep
 
 
 MAPPERS = 0
@@ -31,7 +32,8 @@ class CommWithMasterServicer(CommWithMaster_pb2_grpc.CommWithMasterServicer):
             InputDir = request.in_dir
             OutputDir = request.out_dir
             forkMappers()
-            # forkReducers()
+            sleep(1)
+            forkReducers()
             return CommWithMaster_pb2.RegisterResponse(status="SUCCESS")
         else:
             return CommWithMaster_pb2.RegisterResponse(status="FAIL")
@@ -48,10 +50,13 @@ def forkMappers():
             Mappers[i].start()
 
 def forkReducers():
+    if not os.path.exists('datafiles/output'):
+        os.makedirs('datafiles/output')
+    
     Reducers = []
     for i in range(REDUCERS):
-            dir = InputDir + '/Output' + str(i+1) + '.txt'
-            Reducers.append(Process(target=Reducer.startReducer, args=(dir, RequestType, (i+1))))
+            dir = OutputDir + '/Output' + str(i+1) + '.txt'
+            Reducers.append(Process(target=Reducer.startReducer, args=(dir, RequestType, (i+1), MAPPERS)))
             Reducers[i].start()
 
 def serve():
