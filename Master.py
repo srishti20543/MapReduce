@@ -56,26 +56,36 @@ def forkMappers():
             dir = []
             if RequestType == 1:
                 dir.append(InputDir + '/word_count/Input' + str(i+1) + '.txt')
+                Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS, ids)))
             elif RequestType == 2:
                 dir.append(InputDir + '/inverted_index/Input' + str(i+1) + '.txt')
-            else:
-                dir.append(InputDir + '/natural_join/Input' + str(i+1))
-            Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS)))
-            Mappers[i].start()
+                Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS, ids)))
     else:
         for i in range(MAPPERS):
             dir = []
+            ids = []
             j = i
             while j+1 <= num_files:
                 if RequestType == 1:
                     dir.append(InputDir + '/word_count/Input' + str(j+1) + '.txt')
                 elif RequestType == 2:
                     dir.append(InputDir + '/inverted_index/Input' + str(j+1) + '.txt')
+                    ids.append(str(j+1))
                 else:
-                    dir.append(InputDir + '/natural_join/Input' + str(j+1))
+                    break
                 j+=MAPPERS
-            Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS)))
-            Mappers[i].start()
+            Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS, ids)))
+
+
+    if RequestType == 3:
+        Mappers = []
+        for i in range(MAPPERS):
+            dir = []
+            dir.append(InputDir + '/natural_join/Input' + str(i+1))
+            Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS, ids)))
+
+    for i in range(MAPPERS):
+        Mappers[i].start()
 
 
 def forkReducers():
