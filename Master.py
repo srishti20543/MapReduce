@@ -2,6 +2,7 @@ import sys
 sys.path.insert(1, 'Protos')
 
 from concurrent import futures
+from multiprocessing import Process
 
 import CommWithMaster_pb2_grpc
 import CommWithMaster_pb2
@@ -9,8 +10,7 @@ import logging
 import grpc
 import Mapper
 import Reducer
-
-from multiprocessing import Process
+import os
 
 
 MAPPERS = 0
@@ -22,10 +22,14 @@ RequestType = 0
 class CommWithMasterServicer(CommWithMaster_pb2_grpc.CommWithMasterServicer):
 
     def MakeChoice(self, request, context):
-        global RequestType
+        global RequestType, MAPPERS, REDUCERS, InputDir, OutputDir
         
         if request.typeOfRequest == 1 or request.typeOfRequest == 2 or request.typeOfRequest == 3:
             RequestType = request.typeOfRequest
+            MAPPERS = request.mappers
+            REDUCERS = request.reducers
+            InputDir = request.in_dir
+            OutputDir = request.out_dir
             forkMappers()
             # forkReducers()
             return CommWithMaster_pb2.RegisterResponse(status="SUCCESS")
@@ -34,6 +38,9 @@ class CommWithMasterServicer(CommWithMaster_pb2_grpc.CommWithMasterServicer):
 
 
 def forkMappers():
+    if not os.path.exists('datafiles/intermediate'):
+        os.makedirs('datafiles/intermediate')
+
     Mappers = []
     for i in range(MAPPERS):
             dir = InputDir + '/Input' + str(i+1) + '.txt'
@@ -48,7 +55,6 @@ def forkReducers():
             Reducers[i].start()
 
 def serve():
-    print(MAPPERS, REDUCERS, InputDir, OutputDir)
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     CommWithMaster_pb2_grpc.add_CommWithMasterServicer_to_server(CommWithMasterServicer(), server)
     server.add_insecure_port('[::]:8000')
@@ -56,10 +62,5 @@ def serve():
     server.wait_for_termination()
 
 if __name__ == '__main__':
-    arg = sys.argv[1:]
-    InputDir = arg[0]
-    MAPPERS = int(arg[1])
-    REDUCERS = int(arg[2])
-    OutputDir = arg[3]
     logging.basicConfig()
     serve()

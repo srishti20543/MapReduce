@@ -1,4 +1,7 @@
+import os
+
 InterDir = ""
+Reducers = 0
 
 def wordCount(InputDir, index):
     global InterDir 
@@ -9,33 +12,31 @@ def wordCount(InputDir, index):
     for word in listOfWords:
         intermediate.append((word, 1))
 
-    InterDir = 'Datafiles/Intermediate/inter'+str(index)+'.txt'
+    partition(intermediate, index)
 
-    with open(InterDir, "w") as f:
-        for inter in intermediate:
-            f.write(str(inter)+'\n')
+def partition(intermediate, index):
+    mapper_dir = 'datafiles/intermediate/mapper'+str(index)
 
-def partition(Reducers):
-    intermediate = []
-    with open(InterDir, "r") as f:
-        for line in f:
-            intermediate.append(line.strip())
+    if not os.path.exists(mapper_dir):
+        os.makedirs(mapper_dir)
 
-    
     for inter in intermediate:
-        string = inter[2:-5]
-        partition = len(string)%Reducers
-        InterDir2 = 'Datafiles/Intermediate/intermed'+str(partition+1)+'.txt'
-        with open(InterDir2, "+a") as f:
-            f.write(inter+'\n')
+        string = str(inter)
+        partition = len(string[2:-5])%Reducers
+        InterDir = mapper_dir+'/Inter'+str(partition+1)+'.txt'
+
+        with open(InterDir, "+a") as f:
+            f.write(str(inter))
+            f.write("\n")
 
 
-def startMapper(InputDir, RequestType, index, Reducers):
+def startMapper(InputDir, RequestType, index, Reducer):
+    global Reducers
+    Reducers = Reducer
+
     if RequestType == 1:
         wordCount(InputDir, index)
     # elif RequestType == 2:
     #     invertedIndex(InputDir)
     # else:
     #     naturalJoin(InputDir)
-
-    partition(Reducers)

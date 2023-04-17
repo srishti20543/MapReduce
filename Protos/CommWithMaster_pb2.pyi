@@ -6,15 +6,23 @@ from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class RegisterRequest(_message.Message):
-    __slots__ = ["typeOfRequest"]
+    __slots__ = ["in_dir", "mappers", "out_dir", "reducers", "typeOfRequest"]
     class TypeOfRequest(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = []
+    IN_DIR_FIELD_NUMBER: _ClassVar[int]
     InvertedIndex: RegisterRequest.TypeOfRequest
+    MAPPERS_FIELD_NUMBER: _ClassVar[int]
     NaturalJoin: RegisterRequest.TypeOfRequest
+    OUT_DIR_FIELD_NUMBER: _ClassVar[int]
+    REDUCERS_FIELD_NUMBER: _ClassVar[int]
     TYPEOFREQUEST_FIELD_NUMBER: _ClassVar[int]
     WordCount: RegisterRequest.TypeOfRequest
+    in_dir: str
+    mappers: int
+    out_dir: str
+    reducers: int
     typeOfRequest: RegisterRequest.TypeOfRequest
-    def __init__(self, typeOfRequest: _Optional[_Union[RegisterRequest.TypeOfRequest, str]] = ...) -> None: ...
+    def __init__(self, typeOfRequest: _Optional[_Union[RegisterRequest.TypeOfRequest, str]] = ..., in_dir: _Optional[str] = ..., out_dir: _Optional[str] = ..., mappers: _Optional[int] = ..., reducers: _Optional[int] = ...) -> None: ...
 
 class RegisterResponse(_message.Message):
     __slots__ = ["status"]

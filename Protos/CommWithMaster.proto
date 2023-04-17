@@ -12,6 +12,10 @@ message RegisterRequest{
     }
 
     TypeOfRequest typeOfRequest = 1;
+    string in_dir = 2;
+    string out_dir = 3;
+    int32 mappers = 4;
+    int32 reducers = 5;
 }
 
 message RegisterResponse{
