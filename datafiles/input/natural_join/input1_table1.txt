@@ -1,5 +1,5 @@
-Name, Age
-John, 21
-Tom, 17
-Smith, 23
-Kevin, 100
+Name, Age, Gender
+John, 21, F
+Tom, 17, F
+Smith, 23, M
+Kevin, 100, M

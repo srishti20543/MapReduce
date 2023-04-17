@@ -45,6 +45,39 @@ def invertedIndex(InputDir, index):
 
     partition(intermediate, index)
 
+def partitionNaturalJoin(pairs1, pairs2, index):
+    hashKeys = {}
+    for key in pairs1.keys():
+        if key not in hashKeys.keys():
+            hashKeys[key] = hash(key)
+
+    for key in pairs2.keys():
+        if key not in hashKeys.keys():
+            hashKeys[key] = hash(key)
+
+    mapper_dir = 'datafiles/intermediate/mapper'+str(index)
+    if not os.path.exists(mapper_dir):
+        os.makedirs(mapper_dir)
+
+    for inter in pairs1.keys():
+        string = str(inter) + " " + str(pairs1[inter])
+        partition = hashKeys[inter] % Reducers
+        InterDir = mapper_dir+'/Inter'+str(partition+1)+'.txt'
+
+        with open(InterDir, "+a") as f:
+            f.write(str(string))
+            f.write("\n")
+    
+    for inter in pairs2.keys():
+        string = str(inter) + " " + str(pairs2[inter])
+        partition = hashKeys[inter] % Reducers
+        InterDir = mapper_dir+'/Inter'+str(partition+1)+'.txt'
+
+        with open(InterDir, "+a") as f:
+            f.write(str(string))
+            f.write("\n")
+    
+
 
 def naturalJoin(InputDir, index):
     InputDir1 = InputDir + '_table1.txt'
@@ -83,9 +116,13 @@ def naturalJoin(InputDir, index):
         else:
             intermed = pairs1[values_tab1[i][ind_tb1]]
 
+        tupleToAppend = ("T1", )
+
         for j in range(len(values_tab1[i])):
             if j != ind_tb1:
-                intermed.append(('T1', values_tab1[i][j]))
+                tupleToAppend = tupleToAppend + (values_tab1[i][j],)
+        
+        intermed.append(tupleToAppend)
 
         pairs1[values_tab1[i][ind_tb1]] = intermed
 
@@ -94,14 +131,19 @@ def naturalJoin(InputDir, index):
             intermed = []
         else:
             intermed = pairs2[values_tab2[i][ind_tb2]]
+
+        tupleToAppend = ("T2", )
         
         for j in range(len(values_tab2[i])):
             if j != ind_tb2:
-                intermed.append(('T1', values_tab2[i][j]))
+                tupleToAppend = tupleToAppend + (values_tab1[i][j], )
+        
+        intermed.append(tupleToAppend)
 
         pairs2[values_tab2[i][ind_tb2]] = intermed
 
-    partition(pairs1, pairs2, index)
+    
+    partitionNaturalJoin(pairs1, pairs2, index)
 
 
 def startMapper(InputDir, RequestType, index, Reducer):
