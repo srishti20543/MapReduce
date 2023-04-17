@@ -138,7 +138,7 @@ def naturalJoin(InputDir, index):
         intermed.append(tupleToAppend)
         pairs2[values_tab2[i][ind_tb2]] = intermed
 
-    print(pairs1, pairs2)
+    # print(pairs1, pairs2)
     partitionNaturalJoin(pairs1, pairs2, index)
 
 
