@@ -21,29 +21,31 @@ def partition(intermediate, index):
 def wordCount(InputDir, index):
     global InterDir 
     intermediate = []
+    for dir in InputDir:
+        with open(dir, "r") as f:
+            content = f.read()
 
-    with open(InputDir, "r") as f:
-        content = f.read()
+        listOfWords = content.split()
+        for word in listOfWords:
+            intermediate.append((word, 1))
 
-    listOfWords = content.split()
-    for word in listOfWords:
-        intermediate.append((word, 1))
-
-    partition(intermediate, index)
+        partition(intermediate, index)
 
 
 def invertedIndex(InputDir, index):
     global InterDir 
     intermediate = []
 
-    with open(InputDir, "r") as f:
-        content = f.read()
+    for dir in InputDir:
+        with open(dir, "r") as f:
+            content = f.read()
 
-    listOfWords = content.split()
-    for word in listOfWords:
-        intermediate.append((word, index))
+        listOfWords = content.split()
+        for word in listOfWords:
+            intermediate.append((word, index))
 
-    partition(intermediate, index)
+        partition(intermediate, index)
+
 
 def partitionNaturalJoin(pairs1, pairs2, index):
     hashKeys = {}
@@ -60,21 +62,21 @@ def partitionNaturalJoin(pairs1, pairs2, index):
         os.makedirs(mapper_dir)
 
     for inter in pairs1.keys():
-        string = str(inter) + " " + str(pairs1[inter])
+        tupleToWrite = (inter, pairs1[inter])
         partition = hashKeys[inter] % Reducers
         InterDir = mapper_dir+'/Inter'+str(partition+1)+'.txt'
 
         with open(InterDir, "+a") as f:
-            f.write(str(string))
+            f.write(str(tupleToWrite))
             f.write("\n")
     
     for inter in pairs2.keys():
-        string = str(inter) + " " + str(pairs2[inter])
+        tupleToWrite = (inter, pairs2[inter])
         partition = hashKeys[inter] % Reducers
         InterDir = mapper_dir+'/Inter'+str(partition+1)+'.txt'
 
         with open(InterDir, "+a") as f:
-            f.write(str(string))
+            f.write(str(tupleToWrite))
             f.write("\n")
     
 
