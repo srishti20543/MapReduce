@@ -67,13 +67,12 @@ def wordCount(InputDir, index):
 def invertedIndex(InputDir, index, ids):
     global InterDir 
     intermediate = []
-
-    for dir in InputDir:
+    for i, dir in enumerate(InputDir):
         with open(dir, "r") as f:
             content = f.read()
 
         listOfWords = content.split()
-        for i, word in enumerate(listOfWords):
+        for word in listOfWords:
             intermediate.append((word, ids[i]))
 
         partition(intermediate, index)

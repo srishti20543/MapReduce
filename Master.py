@@ -54,12 +54,13 @@ def forkMappers():
     if num_files <= MAPPERS:
         for i in range(num_files):
             dir = []
+            ids = []
             if RequestType == 1:
                 dir.append(InputDir + '/word_count/Input' + str(i+1) + '.txt')
-                Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS, ids)))
             elif RequestType == 2:
                 dir.append(InputDir + '/inverted_index/Input' + str(i+1) + '.txt')
-                Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS, ids)))
+                ids.append(str(i+1))
+            Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS, ids)))
     else:
         for i in range(MAPPERS):
             dir = []
@@ -79,6 +80,7 @@ def forkMappers():
 
     if RequestType == 3:
         Mappers = []
+        ids = []
         for i in range(MAPPERS):
             dir = []
             dir.append(InputDir + '/natural_join/Input' + str(i+1))
