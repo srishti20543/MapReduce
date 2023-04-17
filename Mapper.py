@@ -5,7 +5,6 @@ Reducers = 0
 
 def partition(intermediate, index):
     mapper_dir = 'datafiles/intermediate/mapper'+str(index)
-
     if not os.path.exists(mapper_dir):
         os.makedirs(mapper_dir)
 
@@ -27,7 +26,6 @@ def wordCount(InputDir, index):
         content = f.read()
 
     listOfWords = content.split()
-
     for word in listOfWords:
         intermediate.append((word, 1))
 
@@ -42,11 +40,14 @@ def invertedIndex(InputDir, index):
         content = f.read()
 
     listOfWords = content.split()
-
     for word in listOfWords:
         intermediate.append((word, index))
 
     partition(intermediate, index)
+
+
+def naturalJoin(InputDir, index):
+    pass
 
 
 def startMapper(InputDir, RequestType, index, Reducer):
@@ -57,5 +58,5 @@ def startMapper(InputDir, RequestType, index, Reducer):
         wordCount(InputDir, index)
     elif RequestType == 2:
         invertedIndex(InputDir, index)
-    # else:
-    #     naturalJoin(InputDir)
+    else:
+        naturalJoin(InputDir, index)

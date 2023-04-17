@@ -20,10 +20,10 @@ def shuffleAndSort(index, mappers):
             groupedValues[keyValuePair[0].lower()] = []
         groupedValues[keyValuePair[0].lower()].append(keyValuePair[1])
 
-
     return groupedValues
 
-def wordCount(outputDirectory, index, sortedKeys):
+
+def wordCount(outputDirectory, sortedKeys):
     # Open the file in write mode
     for keys in sortedKeys.keys():
         with open(outputDirectory, '+a') as file:
@@ -33,29 +33,28 @@ def wordCount(outputDirectory, index, sortedKeys):
             file.write("\n")
  
     
+def invertedIndex(outputDirectory, sortedKeys):
+    for keys in sortedKeys.keys():
+        with open(outputDirectory, '+a') as file:
+            # Write data to the file
+            reduced = ""
+            for id in sortedKeys[keys]:
+                str_id = str(id)
+                if str_id not in reduced:
+                    reduced+= str_id + ", "
+            file.write(keys + " " + reduced[:-2])
+            file.write("\n")
 
-def invertedIndex(InputDir, index):
-    global InterDir 
-    intermediate = []
-
-    with open(InputDir, "r") as f:
-        content = f.read()
-
-    listOfWords = content.split()
-
-    for word in listOfWords:
-        intermediate.append((word, index))
-
-    partition(intermediate, index)
-
+def naturalJoin(InputDir, index):
+    pass
 
 
 def startReducer(outputDirectory, RequestType, index, mappers):
 
     sortedKeys = shuffleAndSort(index, mappers)
     if RequestType == 1:
-        wordCount(outputDirectory, index, sortedKeys)
+        wordCount(outputDirectory, sortedKeys)
     elif RequestType == 2:
-        invertedIndex(outputDirectory, index, sortedKeys)
-    # else:
-    #     naturalJoin(InputDir)
+        invertedIndex(outputDirectory, sortedKeys)
+    else:
+        naturalJoin(outputDirectory, sortedKeys)
