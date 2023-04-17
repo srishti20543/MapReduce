@@ -3,7 +3,6 @@ sys.path.insert(1, 'Protos')
 
 from concurrent import futures
 from multiprocessing import Process
-
 import CommWithMaster_pb2_grpc
 import CommWithMaster_pb2
 import logging
@@ -13,7 +12,6 @@ import Reducer
 import os
 from time import sleep
 
-
 MAPPERS = 0
 REDUCERS = 0
 InputDir = ''
@@ -21,7 +19,6 @@ OutputDir = ''
 RequestType = 0
 
 class CommWithMasterServicer(CommWithMaster_pb2_grpc.CommWithMasterServicer):
-
     def MakeChoice(self, request, context):
         global RequestType, MAPPERS, REDUCERS, InputDir, OutputDir
         
@@ -43,18 +40,43 @@ def forkMappers():
     if not os.path.exists('datafiles/intermediate'):
         os.makedirs('datafiles/intermediate')
 
+    if RequestType == 1:
+        files = os.listdir(InputDir + '/word_count')
+        num_files = len(files)
+    elif RequestType == 2:
+        files = os.listdir(InputDir + '/inverted_index')
+        num_files = len(files)
+    else:
+        files = os.listdir(InputDir + '/natural_join')
+        num_files = len(files)
+
     Mappers = []
-    for i in range(MAPPERS):
-            dir = ""
+    if num_files <= MAPPERS:
+        for i in range(num_files):
+            dir = []
             if RequestType == 1:
-                dir = InputDir + '/word_count/Input' + str(i+1) + '.txt'
+                dir.append(InputDir + '/word_count/Input' + str(i+1) + '.txt')
             elif RequestType == 2:
-                dir = InputDir + '/inverted_index/Input' + str(i+1) + '.txt'
+                dir.append(InputDir + '/inverted_index/Input' + str(i+1) + '.txt')
             else:
-                dir = InputDir + '/natural_join/Input' + str(i+1)
-                
+                dir.append(InputDir + '/natural_join/Input' + str(i+1))
             Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS)))
             Mappers[i].start()
+    else:
+        for i in range(MAPPERS):
+            dir = []
+            j = i
+            while j+1 <= num_files:
+                if RequestType == 1:
+                    dir.append(InputDir + '/word_count/Input' + str(j+1) + '.txt')
+                elif RequestType == 2:
+                    dir.append(InputDir + '/inverted_index/Input' + str(j+1) + '.txt')
+                else:
+                    dir.append(InputDir + '/natural_join/Input' + str(j+1))
+                j+=MAPPERS
+            Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS)))
+            Mappers[i].start()
+
 
 def forkReducers():
     if not os.path.exists('datafiles/output'):
@@ -66,12 +88,14 @@ def forkReducers():
             Reducers.append(Process(target=Reducer.startReducer, args=(dir, RequestType, (i+1), MAPPERS)))
             Reducers[i].start()
 
+
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     CommWithMaster_pb2_grpc.add_CommWithMasterServicer_to_server(CommWithMasterServicer(), server)
     server.add_insecure_port('[::]:8000')
     server.start()
     server.wait_for_termination()
+
 
 if __name__ == '__main__':
     logging.basicConfig()
