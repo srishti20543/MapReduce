@@ -32,22 +32,24 @@ def partitionNaturalJoin(pairs1, pairs2, index):
         os.makedirs(mapper_dir)
 
     for inter in pairs1.keys():
-        tupleToWrite = (inter, pairs1[inter])
-        partition = hashKeys[inter] % Reducers
-        InterDir = mapper_dir+'/Inter'+str(partition+1)+'.txt'
+        for i in range(len(pairs1[inter])):
+            tupleToWrite = (inter, pairs1[inter][i])
+            partition = hashKeys[inter] % Reducers
+            InterDir = mapper_dir+'/Inter'+str(partition+1)+'.txt'
 
-        with open(InterDir, "+a") as f:
-            f.write(str(tupleToWrite))
-            f.write("\n")
-    
+            with open(InterDir, "+a") as f:
+                f.write(str(tupleToWrite))
+                f.write("\n")
+        
     for inter in pairs2.keys():
-        tupleToWrite = (inter, pairs2[inter])
-        partition = hashKeys[inter] % Reducers
-        InterDir = mapper_dir+'/Inter'+str(partition+1)+'.txt'
+        for i in range(len(pairs2[inter])):
+            tupleToWrite = (inter, pairs2[inter][i])
+            partition = hashKeys[inter] % Reducers
+            InterDir = mapper_dir+'/Inter'+str(partition+1)+'.txt'
 
-        with open(InterDir, "+a") as f:
-            f.write(str(tupleToWrite))
-            f.write("\n")
+            with open(InterDir, "+a") as f:
+                f.write(str(tupleToWrite))
+                f.write("\n")
 
 
 def wordCount(InputDir, index):
