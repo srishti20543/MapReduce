@@ -51,7 +51,8 @@ def forkMappers():
             elif RequestType == 2:
                 dir = InputDir + '/inverted_index/Input' + str(i+1) + '.txt'
             else:
-                dir = InputDir + '/natural_join/Input' + str(i+1) + '.txt'
+                dir = InputDir + '/natural_join/Input' + str(i+1)
+                
             Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS)))
             Mappers[i].start()
 

@@ -1,0 +1,4 @@
+Name, Age, Gender
+Kevin, 200, M
+Elon, 1, M
+Tom, 34, F
