@@ -45,8 +45,31 @@ def invertedIndex(outputDirectory, sortedKeys):
             file.write(keys + " " + reduced[:-2])
             file.write("\n")
 
-def naturalJoin(InputDir, index):
-    pass
+def naturalJoin(outputDirectory, index):
+
+    for key in index.keys():
+        T1 = []
+        T2 = []
+
+        # Separate T1 and T2 values
+        for val in index[key]:
+            if(val[0] == "T1"):
+                T1.append(val[1:])
+            else:
+                T2.append(val[1:])
+
+        # Create inner joined rows
+        for colT1 in T1:
+            for colT2 in T2:
+                with open(outputDirectory, '+a') as file:
+                    # Write data to the file
+                    file.write(key + " " + str(colT1 + colT2))
+                    file.write("\n")
+
+
+        
+
+
 
 
 def startReducer(outputDirectory, RequestType, index, mappers):
