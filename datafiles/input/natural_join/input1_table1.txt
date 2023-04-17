@@ -1,5 +1,6 @@
 Name, Age, Gender
 John, 21, F
+John, 20, M
 Tom, 17, F
 Smith, 23, M
 Kevin, 100, M
