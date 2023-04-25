@@ -1,5 +1,5 @@
-import os
 import ast
+
 
 def shuffleAndSort(index, mappers):
     sortedPairs = []
@@ -45,7 +45,31 @@ def invertedIndex(outputDirectory, sortedKeys):
             file.write(keys + " " + reduced[:-2])
             file.write("\n")
 
+
 def naturalJoin(outputDirectory, index):
+    columns = []
+    with open("datafiles/intermediate/columns.txt", "r") as f:
+        for line in f:
+            content = line.strip()
+            content = content[5:-1]
+            columns.append(content.split(", "))
+
+    common = ""
+    for name in columns[0]:
+        if name in columns[1]:
+            common = name
+
+    col1 = '['+common
+    for col in columns:
+        for name in col:
+            if name != common:
+                col1+=', '
+                col1+=name
+    col1 += ']\n'
+
+    with open(outputDirectory, '+a') as file:
+        file.write(col1)
+
     for key in index.keys():
         T1 = []
         T2 = []
@@ -65,16 +89,11 @@ def naturalJoin(outputDirectory, index):
                 row.extend(colT1 + colT2)
 
                 with open(outputDirectory, '+a') as file:
-            
-                    # Write data to the file
                     file.write(str(row))
                     file.write("\n")
     
 
-
-
 def startReducer(outputDirectory, RequestType, index, mappers):
-
     sortedKeys = shuffleAndSort(index, mappers)
     if RequestType == 1:
         wordCount(outputDirectory, sortedKeys)

@@ -1,16 +1,5 @@
-be 1
-some 2
-this 1
-work 2
-afraid 1
-an 1
-born 1
-have 1
-hi 1
-in 1
-is 7
-of 1
-others 1
-them 1
-thrust 1
-upon 1
+['Name', 'Age', 'Gender', 'Role']
+['kevin', '100', 'M', 'Intern']
+['kevin', '100', 'M', 'Chairman']
+['kevin', '200', 'M', 'Intern']
+['kevin', '200', 'M', 'Chairman']

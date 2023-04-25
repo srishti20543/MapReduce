@@ -3,6 +3,7 @@ import os
 InterDir = ""
 Reducers = 0
 
+
 def partition(intermediate, index):
     mapper_dir = 'datafiles/intermediate/mapper'+str(index)
     if not os.path.exists(mapper_dir):
@@ -22,7 +23,17 @@ def partition(intermediate, index):
             f.write(str(inter))
             f.write("\n")
 
+
 def partitionNaturalJoin(pairs1, pairs2, index):
+    mapper_dir = 'datafiles/intermediate/mapper'+str(index)
+    if not os.path.exists(mapper_dir):
+        os.makedirs(mapper_dir)
+
+    for i in range(1, Reducers+1):
+        InterDir = mapper_dir+'/Inter'+str(i)+'.txt'
+        file = open(InterDir, "w")
+        file.close()
+
     hashKeys = {}
     for key in pairs1.keys():
         if key not in hashKeys.keys():
@@ -31,10 +42,6 @@ def partitionNaturalJoin(pairs1, pairs2, index):
     for key in pairs2.keys():
         if key not in hashKeys.keys():
             hashKeys[key] = hash(key)
-
-    mapper_dir = 'datafiles/intermediate/mapper'+str(index)
-    if not os.path.exists(mapper_dir):
-        os.makedirs(mapper_dir)
 
     for inter in pairs1.keys():
         for i in range(len(pairs1[inter])):
@@ -144,7 +151,11 @@ def naturalJoin(InputDir, index):
         intermed.append(tupleToAppend)
         pairs2[values_tab2[i][ind_tb2]] = intermed
 
-    # print(pairs1, pairs2)
+    with open('datafiles/intermediate/columns.txt', "w") as f:
+        for i in range(len(columns)):
+            text = 'T'+str(i+1)+": "+str(columns[i])+'\n'
+            f.write(text)
+            
     partitionNaturalJoin(pairs1, pairs2, index)
 
 

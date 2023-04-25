@@ -1,0 +1,4 @@
+Name, Age, Gender
+Diksha, 21, F
+Srishti, 20, F
+Mudit, 17, M

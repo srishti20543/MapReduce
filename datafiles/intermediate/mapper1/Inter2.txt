@@ -1,4 +1,2 @@
-('apple', 1)
-('Apple', 1)
-('red', 1)
-('color', 1)
+('Tom', ('T1', '17', 'F'))
+('Tom', ('T2', 'Manager'))

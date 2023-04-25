@@ -19,6 +19,7 @@ InputDir = ''
 OutputDir = ''
 RequestType = 0
 
+
 class CommWithMasterServicer(CommWithMaster_pb2_grpc.CommWithMasterServicer):
     def MakeChoice(self, request, context):
         global RequestType, MAPPERS, REDUCERS, InputDir, OutputDir
@@ -39,6 +40,7 @@ class CommWithMasterServicer(CommWithMaster_pb2_grpc.CommWithMasterServicer):
 
 def forkMappers():
     global MAPPERS_Actual
+    Mappers = []
 
     if not os.path.exists('datafiles/intermediate'):
         os.makedirs('datafiles/intermediate')
@@ -53,10 +55,8 @@ def forkMappers():
         files = os.listdir(InputDir + '/natural_join')
         num_files = len(files)
 
-    Mappers = []
     if num_files <= MAPPERS:
         MAPPERS_Actual = num_files
-
         for i in range(num_files):
             dir = []
             ids = []
@@ -65,6 +65,9 @@ def forkMappers():
             elif RequestType == 2:
                 dir.append(InputDir + '/inverted_index/Input' + str(i+1) + '.txt')
                 ids.append(str(i+1))
+            elif RequestType == 3:
+                dir.append(InputDir + '/natural_join/Input' + str(i+1))
+                Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS, ids)))
             Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS, ids)))
     else:
         MAPPERS_Actual = MAPPERS
@@ -83,15 +86,6 @@ def forkMappers():
                 j+=MAPPERS
             Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS, ids)))
 
-
-    if RequestType == 3:
-        Mappers = []
-        ids = []
-        for i in range(MAPPERS):
-            dir = []
-            dir.append(InputDir + '/natural_join/Input' + str(i+1))
-            Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS, ids)))
-
     for mapper in Mappers:
         mapper.start()
 
@@ -99,7 +93,7 @@ def forkMappers():
 def forkReducers():
     if not os.path.exists('datafiles/output'):
         os.makedirs('datafiles/output')
-    
+
     Reducers = []
     for i in range(REDUCERS):
             dir = OutputDir + '/Output' + str(i+1) + '.txt'
