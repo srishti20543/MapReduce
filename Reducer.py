@@ -3,7 +3,6 @@ import ast
 
 def shuffleAndSort(index, mappers):
     sortedPairs = []
-
     for mapper in range(1, mappers + 1):
         pathForPartition = "datafiles/intermediate/mapper" + str(mapper) + "/Inter" + str(index) + ".txt"
 
@@ -24,10 +23,8 @@ def shuffleAndSort(index, mappers):
 
 
 def wordCount(outputDirectory, sortedKeys):
-    # Open the file in write mode
     for keys in sortedKeys.keys():
         with open(outputDirectory, '+a') as file:
-            # Write data to the file
             reduced = sum(sortedKeys[keys])
             file.write(keys + " " + str(reduced))
             file.write("\n")
@@ -36,7 +33,6 @@ def wordCount(outputDirectory, sortedKeys):
 def invertedIndex(outputDirectory, sortedKeys):
     for keys in sortedKeys.keys():
         with open(outputDirectory, '+a') as file:
-            # Write data to the file
             reduced = ""
             for id in sortedKeys[keys]:
                 str_id = str(id)
@@ -58,7 +54,6 @@ def naturalJoin(outputDirectory, index):
     for name in columns[0]:
         if name in columns[1]:
             common = name
-
     col1 = '['+common
     for col in columns:
         for name in col:
@@ -74,14 +69,12 @@ def naturalJoin(outputDirectory, index):
         T1 = []
         T2 = []
 
-        # Separate T1 and T2 values
         for val in index[key]:
             if(val[0] == "T1"):
                 T1.append(val[1:])
             else:
                 T2.append(val[1:])
 
-        # Create inner joined rows
         for colT1 in T1:
             for colT2 in T2:
                 row = []
@@ -101,3 +94,4 @@ def startReducer(outputDirectory, RequestType, index, mappers):
         invertedIndex(outputDirectory, sortedKeys)
     else:
         naturalJoin(outputDirectory, sortedKeys)
+        
