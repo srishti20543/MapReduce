@@ -1,2 +1,0 @@
-('Kevin', ('T1', '200', 'M'))
-('Kevin', ('T2', 'Chairman'))

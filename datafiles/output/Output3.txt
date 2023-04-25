@@ -1,3 +1,0 @@
-['Name', 'Age', 'Gender', 'Role']
-['john', '21', 'F', 'CEO']
-['john', '20', 'M', 'CEO']

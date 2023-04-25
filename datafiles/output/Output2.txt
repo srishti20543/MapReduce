@@ -1,4 +1,0 @@
-['Name', 'Age', 'Gender', 'Role']
-['nick', '1', 'M', 'Associate']
-['tom', '17', 'F', 'Manager']
-['tom', '34', 'F', 'Manager']
