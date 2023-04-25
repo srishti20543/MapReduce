@@ -1,0 +1,8 @@
+('not', 1)
+('greatness', 1)
+('are', 1)
+('great', 1)
+('achieve', 1)
+('greatness', 1)
+('and', 1)
+('greatness', 1)

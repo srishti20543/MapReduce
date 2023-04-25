@@ -8,6 +8,11 @@ def partition(intermediate, index):
     if not os.path.exists(mapper_dir):
         os.makedirs(mapper_dir)
 
+    for i in range(1, Reducers+1):
+        InterDir = mapper_dir+'/Inter'+str(i)+'.txt'
+        file = open(InterDir, "w")
+        file.close()
+
     for inter in intermediate:
         string = str(inter)
         partition = len(string[2:-5])%Reducers

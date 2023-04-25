@@ -14,6 +14,7 @@ from time import sleep
 
 MAPPERS = 0
 REDUCERS = 0
+MAPPERS_Actual = 0
 InputDir = ''
 OutputDir = ''
 RequestType = 0
@@ -37,6 +38,8 @@ class CommWithMasterServicer(CommWithMaster_pb2_grpc.CommWithMasterServicer):
 
 
 def forkMappers():
+    global MAPPERS_Actual
+
     if not os.path.exists('datafiles/intermediate'):
         os.makedirs('datafiles/intermediate')
 
@@ -52,6 +55,8 @@ def forkMappers():
 
     Mappers = []
     if num_files <= MAPPERS:
+        MAPPERS_Actual = num_files
+
         for i in range(num_files):
             dir = []
             ids = []
@@ -62,6 +67,7 @@ def forkMappers():
                 ids.append(str(i+1))
             Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS, ids)))
     else:
+        MAPPERS_Actual = MAPPERS
         for i in range(MAPPERS):
             dir = []
             ids = []
@@ -86,8 +92,8 @@ def forkMappers():
             dir.append(InputDir + '/natural_join/Input' + str(i+1))
             Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS, ids)))
 
-    for i in range(MAPPERS):
-        Mappers[i].start()
+    for mapper in Mappers:
+        mapper.start()
 
 
 def forkReducers():
@@ -97,7 +103,7 @@ def forkReducers():
     Reducers = []
     for i in range(REDUCERS):
             dir = OutputDir + '/Output' + str(i+1) + '.txt'
-            Reducers.append(Process(target=Reducer.startReducer, args=(dir, RequestType, (i+1), MAPPERS)))
+            Reducers.append(Process(target=Reducer.startReducer, args=(dir, RequestType, (i+1), MAPPERS_Actual)))
             Reducers[i].start()
 
 
