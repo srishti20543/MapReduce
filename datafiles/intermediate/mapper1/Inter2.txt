@@ -1,0 +1,7 @@
+('Tom', ('T1', '17', 'F'))
+('Smith', ('T1', '23', 'M'))
+('Tom', ('T2', 'Manager'))
+('Diksha', ('T1', '21', 'F'))
+('Srishti', ('T1', '20', 'F'))
+('Smith', ('T2', 'Chairman'))
+('Diksha', ('T2', 'Student'))

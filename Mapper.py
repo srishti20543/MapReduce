@@ -31,7 +31,7 @@ def partitionNaturalJoin(pairs1, pairs2, index):
 
     for i in range(1, Reducers+1):
         InterDir = mapper_dir+'/Inter'+str(i)+'.txt'
-        file = open(InterDir, "w")
+        file = open(InterDir, "+a")
         file.close()
 
     hashKeys = {}
@@ -93,70 +93,71 @@ def invertedIndex(InputDir, index, ids):
 
 
 def naturalJoin(InputDir, index):
-    InputDir1 = InputDir[0] + '_table1.txt'
-    InputDir2 = InputDir[0] + '_table2.txt'
-    values_tab1 = []
-    values_tab2 = []
-    columns = []
+    for dir in InputDir:
+        InputDir1 = dir + '_table1.txt'
+        InputDir2 = dir + '_table2.txt'
+        values_tab1 = []
+        values_tab2 = []
+        columns = []
 
-    with open(InputDir1, "r") as f:
-        for i, line in enumerate(f):
-            content = line.strip()
-            if i == 0:
-                columns.append(content.split(", "))
+        with open(InputDir1, "r") as f:
+            for i, line in enumerate(f):
+                content = line.strip()
+                if i == 0:
+                    columns.append(content.split(", "))
+                else:
+                    values_tab1.append(content.split(", "))
+
+        with open(InputDir2, "r") as f:
+            for i, line in enumerate(f):
+                content = line.strip()
+                if i == 0:
+                    columns.append(content.split(", "))
+                else:
+                    values_tab2.append(content.split(", "))
+
+        common_element = list(set(columns[0]).intersection(set(columns[1])))
+
+        ind_tb1 = columns[0].index(common_element[0])
+        ind_tb2 = columns[1].index(common_element[0])
+
+        pairs1 = {}
+        pairs2 = {} 
+
+        for i in range(len(values_tab1)):
+            if values_tab1[i][ind_tb1] not in pairs1.keys():
+                intermed = []
             else:
-                values_tab1.append(content.split(", "))
+                intermed = pairs1[values_tab1[i][ind_tb1]]
 
-    with open(InputDir2, "r") as f:
-        for i, line in enumerate(f):
-            content = line.strip()
-            if i == 0:
-                columns.append(content.split(", "))
-            else:
-                values_tab2.append(content.split(", "))
-
-    common_element = list(set(columns[0]).intersection(set(columns[1])))
-
-    ind_tb1 = columns[0].index(common_element[0])
-    ind_tb2 = columns[1].index(common_element[0])
-
-    pairs1 = {}
-    pairs2 = {} 
-
-    for i in range(len(values_tab1)):
-        if values_tab1[i][ind_tb1] not in pairs1.keys():
-            intermed = []
-        else:
-            intermed = pairs1[values_tab1[i][ind_tb1]]
-
-        tupleToAppend = ("T1", )
-        for j in range(len(values_tab1[i])):
-            if j != ind_tb1:
-                tupleToAppend = tupleToAppend + (values_tab1[i][j],)
-        
-        intermed.append(tupleToAppend)
-        pairs1[values_tab1[i][ind_tb1]] = intermed
-
-    for i in range(len(values_tab2)):
-        if values_tab2[i][ind_tb2] not in pairs2.keys():
-            intermed = []
-        else:
-            intermed = pairs2[values_tab2[i][ind_tb2]]
-
-        tupleToAppend = ("T2", )
-        for j in range(len(values_tab2[i])):
-            if j != ind_tb2:
-                tupleToAppend = tupleToAppend + (values_tab2[i][j], )
-        
-        intermed.append(tupleToAppend)
-        pairs2[values_tab2[i][ind_tb2]] = intermed
-
-    with open('datafiles/intermediate/columns.txt', "w") as f:
-        for i in range(len(columns)):
-            text = 'T'+str(i+1)+": "+str(columns[i])+'\n'
-            f.write(text)
+            tupleToAppend = ("T1", )
+            for j in range(len(values_tab1[i])):
+                if j != ind_tb1:
+                    tupleToAppend = tupleToAppend + (values_tab1[i][j],)
             
-    partitionNaturalJoin(pairs1, pairs2, index)
+            intermed.append(tupleToAppend)
+            pairs1[values_tab1[i][ind_tb1]] = intermed
+
+        for i in range(len(values_tab2)):
+            if values_tab2[i][ind_tb2] not in pairs2.keys():
+                intermed = []
+            else:
+                intermed = pairs2[values_tab2[i][ind_tb2]]
+
+            tupleToAppend = ("T2", )
+            for j in range(len(values_tab2[i])):
+                if j != ind_tb2:
+                    tupleToAppend = tupleToAppend + (values_tab2[i][j], )
+            
+            intermed.append(tupleToAppend)
+            pairs2[values_tab2[i][ind_tb2]] = intermed
+
+        with open('datafiles/intermediate/columns.txt', "w") as f:
+            for i in range(len(columns)):
+                text = 'T'+str(i+1)+": "+str(columns[i])+'\n'
+                f.write(text)
+                
+        partitionNaturalJoin(pairs1, pairs2, index)
 
 
 def startMapper(InputDir, RequestType, index, Reducer, ids):

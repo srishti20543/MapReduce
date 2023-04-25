@@ -1,0 +1,6 @@
+['Name', 'Age', 'Gender', 'Role']
+['kevin', '100', 'M', 'Intern']
+['kevin', '100', 'M', 'Chairman']
+['kevin', '200', 'M', 'Intern']
+['kevin', '200', 'M', 'Chairman']
+['nick', '1', 'M', 'Associate']

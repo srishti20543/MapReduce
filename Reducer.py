@@ -42,7 +42,7 @@ def invertedIndex(outputDirectory, sortedKeys):
             file.write("\n")
 
 
-def naturalJoin(outputDirectory, index):
+def naturalJoin(outputDirectory, sortedKeys):
     columns = []
     with open("datafiles/intermediate/columns.txt", "r") as f:
         for line in f:
@@ -65,11 +65,11 @@ def naturalJoin(outputDirectory, index):
     with open(outputDirectory, '+a') as file:
         file.write(col1)
 
-    for key in index.keys():
+    for key in sortedKeys.keys():
         T1 = []
         T2 = []
 
-        for val in index[key]:
+        for val in sortedKeys[key]:
             if(val[0] == "T1"):
                 T1.append(val[1:])
             else:

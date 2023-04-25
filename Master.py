@@ -53,7 +53,7 @@ def forkMappers():
         num_files = len(files)
     else:
         files = os.listdir(InputDir + '/natural_join')
-        num_files = len(files)
+        num_files = len(files)/2
 
     if num_files <= MAPPERS:
         MAPPERS_Actual = num_files
@@ -67,7 +67,6 @@ def forkMappers():
                 ids.append(str(i+1))
             elif RequestType == 3:
                 dir.append(InputDir + '/natural_join/Input' + str(i+1))
-                Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS, ids)))
             Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS, ids)))
     else:
         MAPPERS_Actual = MAPPERS
@@ -82,7 +81,7 @@ def forkMappers():
                     dir.append(InputDir + '/inverted_index/Input' + str(j+1) + '.txt')
                     ids.append(str(j+1))
                 else:
-                    break
+                    dir.append(InputDir + '/natural_join/Input' + str(j+1))
                 j+=MAPPERS
             Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS, ids)))
 
