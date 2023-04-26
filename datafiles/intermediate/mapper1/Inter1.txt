@@ -1,0 +1,10 @@
+T1: ['Name', 'Age', 'Gender']
+T2: ['Name', 'Role']
+('John', ('T1', '21', 'F'))
+('John', ('T1', '20', 'M'))
+('Tom', ('T1', '17', 'F'))
+('Smith', ('T1', '23', 'M'))
+('Kevin', ('T1', '100', 'M'))
+('John', ('T2', 'CEO'))
+('Tom', ('T2', 'Manager'))
+('Kevin', ('T2', 'Intern'))

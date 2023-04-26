@@ -1,0 +1,5 @@
+T1: ['Name', 'Age', 'Gender']
+T2: ['Name', 'Role']
+('Diksha', ('T1', '21', 'F'))
+('Srishti', ('T1', '20', 'F'))
+('Diksha', ('T2', 'Student'))

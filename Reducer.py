@@ -1,13 +1,15 @@
 import ast
 
 
-def shuffleAndSort(index, mappers):
+def shuffleAndSort(index, mappers, typerequest):
     sortedPairs = []
     for mapper in range(1, mappers + 1):
         pathForPartition = "datafiles/intermediate/mapper" + str(mapper) + "/Inter" + str(index) + ".txt"
 
         with open(pathForPartition, "r") as f:
-            for line in f:
+            for i, line in enumerate(f):
+                if typerequest == 3 and i <=1:
+                    continue
                 content = line.strip()
                 tupleObj = ast.literal_eval(content)
                 sortedPairs.append(tupleObj)
@@ -42,25 +44,28 @@ def invertedIndex(outputDirectory, sortedKeys):
             file.write("\n")
 
 
-def naturalJoin(outputDirectory, sortedKeys):
+def naturalJoin(outputDirectory, sortedKeys, mapper, index):
     columns = []
-    with open("datafiles/intermediate/columns.txt", "r") as f:
-        for line in f:
+    pathForPartition = "datafiles/intermediate/mapper" + str(mapper) + "/Inter" + str(index) + ".txt"
+    with open(pathForPartition, "r") as f:
+        for i, line in enumerate(f):
             content = line.strip()
             content = content[5:-1]
             columns.append(content.split(", "))
+            if i == 1:
+                break
 
     common = ""
     for name in columns[0]:
         if name in columns[1]:
             common = name
-    col1 = '['+common
+    col1 = ''+common
     for col in columns:
         for name in col:
             if name != common:
                 col1+=', '
                 col1+=name
-    col1 += ']\n'
+    col1 += '\n'
 
     with open(outputDirectory, '+a') as file:
         file.write(col1)
@@ -80,18 +85,19 @@ def naturalJoin(outputDirectory, sortedKeys):
                 row = []
                 row.append(key)
                 row.extend(colT1 + colT2)
+                row_str = str(row)
 
                 with open(outputDirectory, '+a') as file:
-                    file.write(str(row))
+                    file.write(row_str[1:-1])
                     file.write("\n")
     
 
 def startReducer(outputDirectory, RequestType, index, mappers):
-    sortedKeys = shuffleAndSort(index, mappers)
+    sortedKeys = shuffleAndSort(index, mappers, RequestType)
     if RequestType == 1:
         wordCount(outputDirectory, sortedKeys)
     elif RequestType == 2:
         invertedIndex(outputDirectory, sortedKeys)
     else:
-        naturalJoin(outputDirectory, sortedKeys)
+        naturalJoin(outputDirectory, sortedKeys, mappers, index)
         

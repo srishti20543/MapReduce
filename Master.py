@@ -53,7 +53,7 @@ def forkMappers():
         num_files = len(files)
     else:
         files = os.listdir(InputDir + '/natural_join')
-        num_files = len(files)/2
+        num_files = len(files)//2
 
     if num_files <= MAPPERS:
         MAPPERS_Actual = num_files
