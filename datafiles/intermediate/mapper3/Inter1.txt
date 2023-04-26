@@ -1,4 +1,0 @@
-T1: ['Name', 'Age', 'Gender']
-T2: ['Name', 'Role']
-('Mudit', ('T1', '17', 'M'))
-('Smith', ('T2', 'Chairman'))

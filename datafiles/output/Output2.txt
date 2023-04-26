@@ -1,3 +1,0 @@
-'Name', 'Age', 'Gender', 'Role'
-'diksha', '21', 'F', 'Student'
-'nick', '1', 'M', 'Associate'
