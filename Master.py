@@ -42,7 +42,9 @@ class CommWithMasterServicer(CommWithMaster_pb2_grpc.CommWithMasterServicer):
                 portsForMappers.append(mapper_start_num + i)
             for i in range(REDUCERS):
                 portsForReducers.append(reducer_start_num + i)
-            
+            print("number of mappers: ", MAPPERS)
+            print("number of reducers: ", REDUCERS)
+
             connectToMappers()
             connectToReducers()
             return CommWithMaster_pb2.RegisterResponse(status="SUCCESS")
@@ -51,10 +53,8 @@ class CommWithMasterServicer(CommWithMaster_pb2_grpc.CommWithMasterServicer):
 
 def startConnectionWithMapper(mapperPorts, directories, RequestType, index, REDUCERS, ids):
     # global portsForMappers
-    print(mapperPorts)
-    print("Index Num: ", index)
     port_number = str(mapperPorts[index - 1])
-    print("Port Number for mapper: ", port_number)
+    print("Mapper called with: ", port_number)
 
     request = CommWithMapper_pb2.MappingRequest()
     request.directories.extend(directories)
@@ -158,7 +158,7 @@ def connectToReducers():
         thread.join()
 
 def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
     CommWithMaster_pb2_grpc.add_CommWithMasterServicer_to_server(CommWithMasterServicer(), server)
     server.add_insecure_port('[::]:8000')
     server.start()

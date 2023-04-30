@@ -90,7 +90,6 @@ def naturalJoin(outputDirectory, sortedKeys, mapper, index):
     for key in sortedKeys.keys():
         T1 = []
         T2 = []
-
         for val in sortedKeys[key]:
             if(val[0] == "T1"):
                 T1.append(val[1:])
@@ -119,7 +118,7 @@ def startReducer(outputDirectory, RequestType, index, mappers):
         naturalJoin(outputDirectory, sortedKeys, mappers, index)
         
 def serve(portNumber):
-    print("Serve called in reducer num: ", portNumber)
+    print("Reducer started with port num: ", portNumber)
     
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     CommWithReducer_pb2_grpc.add_CommWithReducerServicer_to_server(CommWithReducerServicer(), server)

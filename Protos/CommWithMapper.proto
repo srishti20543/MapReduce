@@ -15,7 +15,7 @@ message MappingRequest{
     TypeOfRequest typeOfRequest = 2;
     int32 index = 3;
     int32 reducers = 4;
-    repeated int32 ids = 5;
+    repeated string ids = 5;
 
 }
 

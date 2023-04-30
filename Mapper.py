@@ -29,7 +29,7 @@ def partition(intermediate, index):
 
     for i in range(1, Reducers+1):
         InterDir = mapper_dir+'/Inter'+str(i)+'.txt'
-        file = open(InterDir, "w")
+        file = open(InterDir, "+a")
         file.close()
 
     for inter in intermediate:
@@ -44,29 +44,20 @@ def partition(intermediate, index):
 
 def partitionNaturalJoin(pairs1, pairs2, index, columns):
     mapper_dir = 'datafiles/intermediate/mapper'+str(index)
-    if not os.path.exists(mapper_dir):
-        os.makedirs(mapper_dir)
-
-    for i in range(1, Reducers+1):
-        InterDir = mapper_dir+'/Inter'+str(i)+'.txt'
-        with open(InterDir, "w") as f:
-            for i in range(len(columns)):
-                text = 'T'+str(i+1)+": "+str(columns[i])+'\n'
-                f.write(text)
-
-    hashKeys = {}
+    strKey = {}
     for key in pairs1.keys():
-        if key not in hashKeys.keys():
-            hashKeys[key] = hash(key)
+        if key not in strKey.keys():
+            strKey[key] = str(key)
 
     for key in pairs2.keys():
-        if key not in hashKeys.keys():
-            hashKeys[key] = hash(key)
+        if key not in strKey.keys():
+            strKey[key] = str(key)
 
     for inter in pairs1.keys():
         for i in range(len(pairs1[inter])):
             tupleToWrite = (inter, pairs1[inter][i])
-            partition = hashKeys[inter] % Reducers
+            partition = len(strKey[inter]) % Reducers
+            print("")
             InterDir = mapper_dir+'/Inter'+str(partition+1)+'.txt'
 
             with open(InterDir, "+a") as f:
@@ -76,7 +67,7 @@ def partitionNaturalJoin(pairs1, pairs2, index, columns):
     for inter in pairs2.keys():
         for i in range(len(pairs2[inter])):
             tupleToWrite = (inter, pairs2[inter][i])
-            partition = hashKeys[inter] % Reducers
+            partition = len(strKey[inter]) % Reducers
             InterDir = mapper_dir+'/Inter'+str(partition+1)+'.txt'
 
             with open(InterDir, "+a") as f:
@@ -113,7 +104,11 @@ def invertedIndex(InputDir, index, ids):
 
 
 def naturalJoin(InputDir, index):
-    for dir in InputDir:
+    mapper_dir = 'datafiles/intermediate/mapper'+str(index)
+    if not os.path.exists(mapper_dir):
+        os.makedirs(mapper_dir)
+
+    for k,dir in enumerate(InputDir):
         InputDir1 = dir + '_table1.txt'
         InputDir2 = dir + '_table2.txt'
         values_tab1 = []
@@ -171,7 +166,16 @@ def naturalJoin(InputDir, index):
             
             intermed.append(tupleToAppend)
             pairs2[values_tab2[i][ind_tb2]] = intermed
-                
+        
+        if (k == 0):
+            for i in range(1, Reducers+1):
+
+                InterDir = mapper_dir+'/Inter'+str(i)+'.txt'
+                with open(InterDir, "+a") as f:
+                    for i in range(len(columns)):
+                        text = 'T'+str(i+1)+": "+str(columns[i])+'\n'
+                        f.write(text) 
+        
         partitionNaturalJoin(pairs1, pairs2, index, columns)
 
 
@@ -187,7 +191,7 @@ def startMapper(InputDir, RequestType, index, Reducer, ids):
         naturalJoin(InputDir, index)
 
 def serve(portNumber):
-    print("Serve called in mapper num: ", portNumber)
+    print("Mapper started with port num: ", portNumber)
     
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     CommWithMapper_pb2_grpc.add_CommWithMapperServicer_to_server(CommWithMapperServicer(), server)

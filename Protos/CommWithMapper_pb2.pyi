@@ -19,11 +19,11 @@ class MappingRequest(_message.Message):
     TYPEOFREQUEST_FIELD_NUMBER: _ClassVar[int]
     WordCount: MappingRequest.TypeOfRequest
     directories: _containers.RepeatedScalarFieldContainer[str]
-    ids: _containers.RepeatedScalarFieldContainer[int]
+    ids: _containers.RepeatedScalarFieldContainer[str]
     index: int
     reducers: int
     typeOfRequest: MappingRequest.TypeOfRequest
-    def __init__(self, directories: _Optional[_Iterable[str]] = ..., typeOfRequest: _Optional[_Union[MappingRequest.TypeOfRequest, str]] = ..., index: _Optional[int] = ..., reducers: _Optional[int] = ..., ids: _Optional[_Iterable[int]] = ...) -> None: ...
+    def __init__(self, directories: _Optional[_Iterable[str]] = ..., typeOfRequest: _Optional[_Union[MappingRequest.TypeOfRequest, str]] = ..., index: _Optional[int] = ..., reducers: _Optional[int] = ..., ids: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class Response(_message.Message):
     __slots__ = ["status"]
