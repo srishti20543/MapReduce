@@ -2,7 +2,7 @@ import sys
 sys.path.insert(1, 'Protos')
 
 from concurrent import futures
-from multiprocessing import Process
+from threading import Thread
 import CommWithMaster_pb2_grpc
 import CommWithMaster_pb2
 import CommWithMapper_pb2
@@ -49,12 +49,12 @@ class CommWithMasterServicer(CommWithMaster_pb2_grpc.CommWithMasterServicer):
         else:
             return CommWithMaster_pb2.RegisterResponse(status="FAIL")
 
-def startConnectionWithMapper(directories, RequestType, index, REDUCERS, ids):
-    global portsForMappers
-    print(portsForMappers)
+def startConnectionWithMapper(mapperPorts, directories, RequestType, index, REDUCERS, ids):
+    # global portsForMappers
+    print(mapperPorts)
     print("Index Num: ", index)
-    port_number = str(portsForMappers[index - 1])
-    print("Process for mapper: ", port_number)
+    port_number = str(mapperPorts[index - 1])
+    print("Port Number for mapper: ", port_number)
 
     request = CommWithMapper_pb2.MappingRequest()
     request.directories.extend(directories)
@@ -62,15 +62,15 @@ def startConnectionWithMapper(directories, RequestType, index, REDUCERS, ids):
     request.typeOfRequest = RequestType
     request.index = index
     request.reducers = REDUCERS
+
     with grpc.insecure_channel('localhost:' + port_number) as channel:
         stub = CommWithMapper_pb2_grpc.CommWithMapperStub(channel)
         print("Sending request to stub: ", port_number)
         status = stub.connectToMapper(request)
         print(status)
 
-
 def connectToMappers():
-    global MAPPERS_Actual
+    global MAPPERS_Actual, portsForMappers
 
     if not os.path.exists('datafiles/intermediate'):
         os.makedirs('datafiles/intermediate')
@@ -85,6 +85,7 @@ def connectToMappers():
         files = os.listdir(InputDir + '/natural_join')
         num_files = len(files)//2
 
+    Mapper_Threads = []
     if num_files <= MAPPERS:
         MAPPERS_Actual = num_files
         for i in range(num_files):
@@ -97,7 +98,7 @@ def connectToMappers():
                 ids.append(str(i+1))
             elif RequestType == 3:
                 dir.append(InputDir + '/natural_join/Input' + str(i+1))
-            startConnectionWithMapper(dir, RequestType, (i+1), REDUCERS, ids)
+            Mapper_Threads.append(Thread(target=startConnectionWithMapper, args=(portsForMappers, dir, RequestType, (i+1), REDUCERS, ids)))
             # Mappers[-1].start()
     else:
         MAPPERS_Actual = MAPPERS
@@ -114,7 +115,31 @@ def connectToMappers():
                 else:
                     dir.append(InputDir + '/natural_join/Input' + str(j+1))
                 j+=MAPPERS
-            startConnectionWithMapper(dir, RequestType, (i+1), REDUCERS, ids)
+            Mapper_Threads.append(Thread(target=startConnectionWithMapper, args=(portsForMappers, dir, RequestType, (i+1), REDUCERS, ids)))
+    
+    for thread in Mapper_Threads:
+        thread.start()
+
+    for thread in Mapper_Threads:
+        thread.join()
+    print("Mapping Threads Finished")
+
+def ReducerCaller(index):
+    global MAPPERS_Actual
+
+    dir = OutputDir + '/Output' + str(index+1) + '.txt'
+    port_number = str(portsForReducers[index])
+    request = CommWithReducer_pb2.ReducerRequest()
+    request.directory = dir
+    request.typeOfRequest = RequestType
+    request.index = (index+1)
+    request.mappers = MAPPERS_Actual
+    with grpc.insecure_channel('localhost:' + port_number) as channel:
+        stub = CommWithReducer_pb2_grpc.CommWithReducerStub(channel)
+        print("Sending request to reducer stub: ", port_number)
+        status = stub.connectToReducer(request)
+        print(status)
+
 
 def connectToReducers():
     global portsForReducers,MAPPERS_Actual
@@ -122,20 +147,15 @@ def connectToReducers():
     if not os.path.exists('datafiles/output'):
         os.makedirs('datafiles/output')
 
+    Reducer_Threads= []
     for i in range(REDUCERS):
-        dir = OutputDir + '/Output' + str(i+1) + '.txt'
-        port_number = str(portsForReducers[i])
-        request = CommWithReducer_pb2.ReducerRequest()
-        request.directory = dir
-        request.typeOfRequest = RequestType
-        request.index = (i+1)
-        request.mappers = MAPPERS_Actual
-        with grpc.insecure_channel('localhost:' + port_number) as channel:
-            stub = CommWithReducer_pb2_grpc.CommWithReducerStub(channel)
-            print("Sending request to reducer stub: ", port_number)
-            status = stub.connectToReducer(request)
-            print(status)
+        Reducer_Threads.append(Thread(target=ReducerCaller, args=(i,)))
 
+    for thread in Reducer_Threads:
+        thread.start()
+    
+    for thread in Reducer_Threads:
+        thread.join()
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
