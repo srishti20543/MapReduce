@@ -1,0 +1,7 @@
+('worship', 1)
+('Worship', 1)
+('faith', 1)
+('Faith', 1)
+('faith', 1)
+('not', 1)
+('faith', 1)

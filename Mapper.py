@@ -1,7 +1,25 @@
+import sys
+sys.path.insert(1, 'Protos')
+
 import os
+import CommWithMapper_pb2_grpc
+import CommWithMapper_pb2
+from concurrent import futures
+import grpc
+import logging
+
 
 InterDir = ""
 Reducers = 0
+
+class CommWithMapperServicer(CommWithMapper_pb2_grpc.CommWithMapperServicer):
+    def connectToMapper(self, request, context):
+        print("Connect to mapper called")
+        directories = list(request.directories)
+        ids = list(request.ids)
+        startMapper(directories, request.typeOfRequest, request.index, request.reducers, ids)
+        
+        return CommWithMapper_pb2.Response(status="Mapper finished work : " + str(request.index))
 
 
 def partition(intermediate, index):
@@ -167,3 +185,20 @@ def startMapper(InputDir, RequestType, index, Reducer, ids):
         invertedIndex(InputDir, index, ids)
     else:
         naturalJoin(InputDir, index)
+
+def serve(portNumber):
+    print("Serve called in mapper num: ", portNumber)
+    
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    CommWithMapper_pb2_grpc.add_CommWithMapperServicer_to_server(CommWithMapperServicer(), server)
+    server.add_insecure_port('[::]:' + str(portNumber))
+    server.start()
+    server.wait_for_termination()
+
+def main(args):
+    logging.basicConfig
+    serve(int(args[0]))
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
+    

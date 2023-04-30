@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+service CommWithMapper{
+    rpc connectToMapper(MappingRequest) returns (Response) {}
+}
+
+message MappingRequest{
+    enum TypeOfRequest{
+        WordCount = 0;
+        InvertedIndex = 1;
+        NaturalJoin = 2;
+    }
+
+    repeated string directories = 1;
+    TypeOfRequest typeOfRequest = 2;
+    int32 index = 3;
+    int32 reducers = 4;
+    repeated int32 ids = 5;
+
+}
+
+message Response{
+    string status = 1;
+}

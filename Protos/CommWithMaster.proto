@@ -2,6 +2,7 @@ syntax = "proto3";
 
 service CommWithMaster{
     rpc MakeChoice(RegisterRequest) returns (RegisterResponse) {}
+
 }
 
 message RegisterRequest{
@@ -16,7 +17,10 @@ message RegisterRequest{
     string out_dir = 3;
     int32 mappers = 4;
     int32 reducers = 5;
+    repeated int32 mapper_ports = 6;
+
 }
+
 
 message RegisterResponse{
     string status = 1;

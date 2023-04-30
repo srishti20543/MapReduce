@@ -5,6 +5,8 @@ from concurrent import futures
 from multiprocessing import Process
 import CommWithMaster_pb2_grpc
 import CommWithMaster_pb2
+import CommWithMapper_pb2
+import CommWithMapper_pb2_grpc
 import logging
 import grpc
 import Mapper
@@ -18,11 +20,13 @@ MAPPERS_Actual = 0
 InputDir = ''
 OutputDir = ''
 RequestType = 0
+portsForMappers = {}
 
 
 class CommWithMasterServicer(CommWithMaster_pb2_grpc.CommWithMasterServicer):
+    
     def MakeChoice(self, request, context):
-        global RequestType, MAPPERS, REDUCERS, InputDir, OutputDir
+        global RequestType, MAPPERS, REDUCERS, InputDir, OutputDir, portsForMappers
         
         if request.typeOfRequest == 1 or request.typeOfRequest == 2 or request.typeOfRequest == 3:
             RequestType = request.typeOfRequest
@@ -30,17 +34,36 @@ class CommWithMasterServicer(CommWithMaster_pb2_grpc.CommWithMasterServicer):
             REDUCERS = request.reducers
             InputDir = request.in_dir
             OutputDir = request.out_dir
-            forkMappers()
-            sleep(1)
+            portsForMappers = request.mapper_ports
+            
+            connectToMappers()
             forkReducers()
             return CommWithMaster_pb2.RegisterResponse(status="SUCCESS")
         else:
             return CommWithMaster_pb2.RegisterResponse(status="FAIL")
 
+def startConnectionWithMapper(directories, RequestType, index, REDUCERS, ids):
+    global portsForMappers
+    print(portsForMappers)
+    print("Index Num: ", index)
+    port_number = str(portsForMappers[index - 1])
+    print("Process for mapper: ", port_number)
 
-def forkMappers():
+    request = CommWithMapper_pb2.MappingRequest()
+    request.directories.extend(directories)
+    request.ids.extend(ids)
+    request.typeOfRequest = RequestType
+    request.index = index
+    request.reducers = REDUCERS
+    with grpc.insecure_channel('localhost:' + port_number) as channel:
+        stub = CommWithMapper_pb2_grpc.CommWithMapperStub(channel)
+        print("Sending request to stub: ", port_number)
+        status = stub.connectToMapper(request)
+        print(status)
+
+
+def connectToMappers():
     global MAPPERS_Actual
-    Mappers = []
 
     if not os.path.exists('datafiles/intermediate'):
         os.makedirs('datafiles/intermediate')
@@ -67,7 +90,8 @@ def forkMappers():
                 ids.append(str(i+1))
             elif RequestType == 3:
                 dir.append(InputDir + '/natural_join/Input' + str(i+1))
-            Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS, ids)))
+            startConnectionWithMapper(dir, RequestType, (i+1), REDUCERS, ids)
+            # Mappers[-1].start()
     else:
         MAPPERS_Actual = MAPPERS
         for i in range(MAPPERS):
@@ -83,10 +107,7 @@ def forkMappers():
                 else:
                     dir.append(InputDir + '/natural_join/Input' + str(j+1))
                 j+=MAPPERS
-            Mappers.append(Process(target=Mapper.startMapper, args=(dir, RequestType, (i+1), REDUCERS, ids)))
-
-    for mapper in Mappers:
-        mapper.start()
+            startConnectionWithMapper(dir, RequestType, (i+1), REDUCERS, ids)
 
 
 def forkReducers():

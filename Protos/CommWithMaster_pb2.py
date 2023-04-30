@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14\x43ommWithMaster.proto\"\xd0\x01\n\x0fRegisterRequest\x12\x35\n\rtypeOfRequest\x18\x01 \x01(\x0e\x32\x1e.RegisterRequest.TypeOfRequest\x12\x0e\n\x06in_dir\x18\x02 \x01(\t\x12\x0f\n\x07out_dir\x18\x03 \x01(\t\x12\x0f\n\x07mappers\x18\x04 \x01(\x05\x12\x10\n\x08reducers\x18\x05 \x01(\x05\"B\n\rTypeOfRequest\x12\r\n\tWordCount\x10\x00\x12\x11\n\rInvertedIndex\x10\x01\x12\x0f\n\x0bNaturalJoin\x10\x02\"\"\n\x10RegisterResponse\x12\x0e\n\x06status\x18\x01 \x01(\t2E\n\x0e\x43ommWithMaster\x12\x33\n\nMakeChoice\x12\x10.RegisterRequest\x1a\x11.RegisterResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x14\x43ommWithMaster.proto\"\xe6\x01\n\x0fRegisterRequest\x12\x35\n\rtypeOfRequest\x18\x01 \x01(\x0e\x32\x1e.RegisterRequest.TypeOfRequest\x12\x0e\n\x06in_dir\x18\x02 \x01(\t\x12\x0f\n\x07out_dir\x18\x03 \x01(\t\x12\x0f\n\x07mappers\x18\x04 \x01(\x05\x12\x10\n\x08reducers\x18\x05 \x01(\x05\x12\x14\n\x0cmapper_ports\x18\x06 \x03(\x05\"B\n\rTypeOfRequest\x12\r\n\tWordCount\x10\x00\x12\x11\n\rInvertedIndex\x10\x01\x12\x0f\n\x0bNaturalJoin\x10\x02\"\"\n\x10RegisterResponse\x12\x0e\n\x06status\x18\x01 \x01(\t2E\n\x0e\x43ommWithMaster\x12\x33\n\nMakeChoice\x12\x10.RegisterRequest\x1a\x11.RegisterResponse\"\x00\x62\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'CommWithMaster_pb2', globals())
@@ -21,11 +21,11 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   _REGISTERREQUEST._serialized_start=25
-  _REGISTERREQUEST._serialized_end=233
-  _REGISTERREQUEST_TYPEOFREQUEST._serialized_start=167
-  _REGISTERREQUEST_TYPEOFREQUEST._serialized_end=233
-  _REGISTERRESPONSE._serialized_start=235
-  _REGISTERRESPONSE._serialized_end=269
-  _COMMWITHMASTER._serialized_start=271
-  _COMMWITHMASTER._serialized_end=340
+  _REGISTERREQUEST._serialized_end=255
+  _REGISTERREQUEST_TYPEOFREQUEST._serialized_start=189
+  _REGISTERREQUEST_TYPEOFREQUEST._serialized_end=255
+  _REGISTERRESPONSE._serialized_start=257
+  _REGISTERRESPONSE._serialized_end=291
+  _COMMWITHMASTER._serialized_start=293
+  _COMMWITHMASTER._serialized_end=362
 # @@protoc_insertion_point(module_scope)
