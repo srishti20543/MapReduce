@@ -7,6 +7,8 @@ import CommWithMaster_pb2_grpc
 import CommWithMaster_pb2
 import CommWithMapper_pb2
 import CommWithMapper_pb2_grpc
+import CommWithReducer_pb2
+import CommWithReducer_pb2_grpc
 import logging
 import grpc
 import Mapper
@@ -20,13 +22,15 @@ MAPPERS_Actual = 0
 InputDir = ''
 OutputDir = ''
 RequestType = 0
-portsForMappers = {}
-
+portsForMappers = []
+portsForReducers = []
 
 class CommWithMasterServicer(CommWithMaster_pb2_grpc.CommWithMasterServicer):
     
     def MakeChoice(self, request, context):
-        global RequestType, MAPPERS, REDUCERS, InputDir, OutputDir, portsForMappers
+        global RequestType, MAPPERS, REDUCERS, InputDir, OutputDir, portsForMappers, portsForReducers
+        mapper_start_num = 7000
+        reducer_start_num = 6000
         
         if request.typeOfRequest == 1 or request.typeOfRequest == 2 or request.typeOfRequest == 3:
             RequestType = request.typeOfRequest
@@ -34,10 +38,13 @@ class CommWithMasterServicer(CommWithMaster_pb2_grpc.CommWithMasterServicer):
             REDUCERS = request.reducers
             InputDir = request.in_dir
             OutputDir = request.out_dir
-            portsForMappers = request.mapper_ports
+            for i in range(MAPPERS):
+                portsForMappers.append(mapper_start_num + i)
+            for i in range(REDUCERS):
+                portsForReducers.append(reducer_start_num + i)
             
             connectToMappers()
-            forkReducers()
+            connectToReducers()
             return CommWithMaster_pb2.RegisterResponse(status="SUCCESS")
         else:
             return CommWithMaster_pb2.RegisterResponse(status="FAIL")
@@ -109,16 +116,25 @@ def connectToMappers():
                 j+=MAPPERS
             startConnectionWithMapper(dir, RequestType, (i+1), REDUCERS, ids)
 
+def connectToReducers():
+    global portsForReducers,MAPPERS_Actual
 
-def forkReducers():
     if not os.path.exists('datafiles/output'):
         os.makedirs('datafiles/output')
 
-    Reducers = []
     for i in range(REDUCERS):
-            dir = OutputDir + '/Output' + str(i+1) + '.txt'
-            Reducers.append(Process(target=Reducer.startReducer, args=(dir, RequestType, (i+1), MAPPERS_Actual)))
-            Reducers[i].start()
+        dir = OutputDir + '/Output' + str(i+1) + '.txt'
+        port_number = str(portsForReducers[i])
+        request = CommWithReducer_pb2.ReducerRequest()
+        request.directory = dir
+        request.typeOfRequest = RequestType
+        request.index = (i+1)
+        request.mappers = MAPPERS_Actual
+        with grpc.insecure_channel('localhost:' + port_number) as channel:
+            stub = CommWithReducer_pb2_grpc.CommWithReducerStub(channel)
+            print("Sending request to reducer stub: ", port_number)
+            status = stub.connectToReducer(request)
+            print(status)
 
 
 def serve():

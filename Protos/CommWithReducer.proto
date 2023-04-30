@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+service CommWithReducer{
+    rpc connectToReducer(ReducerRequest) returns (ReducerResponse) {}
+}
+
+message ReducerRequest{
+    enum TypeOfRequest{
+        WordCount = 0;
+        InvertedIndex = 1;
+        NaturalJoin = 2;
+    }
+
+    string directory = 1;
+    TypeOfRequest typeOfRequest = 2;
+    int32 index = 3;
+    int32 mappers = 4;
+
+}
+
+message ReducerResponse{
+    string status = 1;
+}

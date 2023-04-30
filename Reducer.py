@@ -1,5 +1,22 @@
 import ast
+import sys
+sys.path.insert(1, 'Protos')
 
+import os
+import CommWithReducer_pb2_grpc
+import CommWithReducer_pb2
+from concurrent import futures
+import grpc
+import logging
+
+
+
+class CommWithReducerServicer(CommWithReducer_pb2_grpc.CommWithReducerServicer):
+    def connectToReducer(self, request, context):
+        print("Connect to reducer called")
+        startReducer(request.directory, request.typeOfRequest, request.index, request.mappers)
+
+        return CommWithReducer_pb2.ReducerResponse(status="Reducer finished work : " + str(request.index))
 
 def shuffleAndSort(index, mappers, typerequest):
     sortedPairs = []
@@ -101,3 +118,18 @@ def startReducer(outputDirectory, RequestType, index, mappers):
     else:
         naturalJoin(outputDirectory, sortedKeys, mappers, index)
         
+def serve(portNumber):
+    print("Serve called in reducer num: ", portNumber)
+    
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    CommWithReducer_pb2_grpc.add_CommWithReducerServicer_to_server(CommWithReducerServicer(), server)
+    server.add_insecure_port('[::]:' + str(portNumber))
+    server.start()
+    server.wait_for_termination()
+
+def main(args):
+    logging.basicConfig
+    serve(int(args[0]))
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

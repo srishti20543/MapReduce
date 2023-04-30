@@ -11,7 +11,7 @@ import logging
 def connectToMaster(inputs):
     with grpc.insecure_channel('localhost:8000') as channel:
         stub = CommWithMaster_pb2_grpc.CommWithMasterStub(channel)
-        request = CommWithMaster_pb2.RegisterRequest(typeOfRequest=inputs[0], in_dir=inputs[1], out_dir=inputs[2], mappers=inputs[3], reducers=inputs[4], mapper_ports=inputs[5:])
+        request = CommWithMaster_pb2.RegisterRequest(typeOfRequest=inputs[0], in_dir=inputs[1], out_dir=inputs[2], mappers=inputs[3], reducers=inputs[4])
         status = stub.MakeChoice(request)
         print(status)
 
@@ -25,13 +25,22 @@ if __name__ == '__main__':
     print("Enter Output Directory")
     inputs.append(input())
     print("Enter number of Mappers")
-    numMappers = int(input())
-    inputs.append(numMappers)
-    print("Enter number of Reducers")
+    # numMappers = int(input())
     inputs.append(int(input()))
 
-    for i in range(numMappers):  
-        print("Enter port numbers for mappers")
-        inputs.append(int(input()))
+
+    print("Enter number of Reducers")
+    # numReducers = int(input())
+    inputs.append(int(input()))
+    # mapper_ports = []
+    # reducer_ports = []
+
+    # for i in range(numMappers):  
+    #     print("Enter port numbers for mappers")
+    #     mapper_ports.append(int(input()))
+
+    # for i in range(numReducers):  
+    #     print("Enter port numbers for reducers")
+    #     reducer_ports.append(int(input()))
 
     connectToMaster(inputs)
